@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException
+from urllib import response
+from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
 from app.models.schemas import UserCreate, UserResponse, Token
 from app.models.user import User
@@ -23,14 +24,32 @@ def register(user:UserCreate, db:Session=Depends(get_db)):
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.post("/token", response_model=Token)
-def login(form_data:UserCreate, db:Session=Depends(get_db)):
-    user=db.query(User).filter(User.username == form_data.username).first()
+@router.post("/token")
+def login(
+    form_data: UserCreate,
+    response: Response,
+    db: Session = Depends(get_db),
+):
+    user = db.query(User).filter(User.username == form_data.username).first()
+
     if not user or not verify_password(form_data.password, user.hash_password):
         raise HTTPException(status_code=400, detail="Incorrect username or password")
+
     access_token = create_access_token(data={"sub": user.username})
-    return {"access_token": access_token, "token_type": "bearer"}
+
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=False,     
+        samesite="lax",
+        max_age=60 * 60,
+    )
+
+    return {"message": "Login successful"}
+
 
 @router.get("/me", response_model=UserResponse)
 def read_users_me(current_user: User = Depends(get_current_user)):
+    print(f"Current user: {current_user.username}")
     return current_user
