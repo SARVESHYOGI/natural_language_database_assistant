@@ -30,7 +30,7 @@ export default function LoginPage() {
         }
 
         try {
-            const res = await api.post('/auth/token/', { username, email, password })
+            const res = await api.post('/auth/token', { username, email, password })
             console.log(res.data);
             navigate('/dashboard')
         } catch (error) {
