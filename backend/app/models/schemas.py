@@ -16,3 +16,13 @@ class UserResponse(BaseModel):
 class Token(BaseModel):
     access_token:str
     token_type:str
+
+
+class ChatRequest(BaseModel):
+    message:str
+    session_id:str  
+
+class ChatResponse(BaseModel):
+    status:str
+    data:dict|None=None
+    explanation:str|None=None

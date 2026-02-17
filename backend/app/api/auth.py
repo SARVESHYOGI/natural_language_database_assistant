@@ -1,7 +1,6 @@
-from urllib import response
 from fastapi import APIRouter, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
-from app.models.schemas import UserCreate, UserResponse, Token
+from app.models.schemas import UserCreate, UserResponse
 from app.models.user import User
 from app.core.security import hash_password, verify_password, create_access_token, get_current_user
 from app.db.engine import get_db
