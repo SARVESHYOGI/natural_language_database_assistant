@@ -1,27 +1,11 @@
-import os
-from sqlalchemy import create_engine, make_url
-from sqlalchemy.orm import declarative_base, sessionmaker
-from dotenv import load_dotenv
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, declarative_base
+from app.core.config import settings
 
-load_dotenv()
+engine = create_engine(settings.DATABASE_URL, future=True)
 
-MASTER_DATABASE_URL = os.getenv("DATABASE_URL")
-
-master_engine = create_engine(
-    MASTER_DATABASE_URL,
-    echo=True,
-    future=True,
-    isolation_level="AUTOCOMMIT"
-)
-
-SessionLocal = sessionmaker(
-    autocommit=False,
-    autoflush=False,
-    bind=master_engine
-)
-
+SessionLocal = sessionmaker(bind=engine)
 Base = declarative_base()
-
 
 def get_db():
     db = SessionLocal()
@@ -29,12 +13,3 @@ def get_db():
         yield db
     finally:
         db.close()
-
-
-def get_user_engine(db_name: str):
-    url = make_url(MASTER_DATABASE_URL)
-    new_url = url.set(database=db_name)
-    return create_engine(new_url, echo=True, future=True)
-
-def get_master_engine():
-    return master_engine

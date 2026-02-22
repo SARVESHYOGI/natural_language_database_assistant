@@ -1,31 +1,40 @@
-from app.rag.rag import build_schema_index, retrieve_relevant_schema
-from app.llm.sql_model import generate_sql
-from app.services.schema_service import get_schema_for_model
-from app.db.engine import get_user_engine
-from fastapi import APIRouter
-
-from pydantic import BaseModel
-
-class QueryRequest(BaseModel):
-    message: str
+from fastapi import APIRouter, Depends, HTTPException
+from sqlalchemy.engine import make_url
+from sqlalchemy import create_engine
+from app.models.user import User
+from app.core.security import get_current_user
+from app.services.rag_service import retrieve_schema
+from app.services.llm_service import generate_sql
+from app.services.query_service import QueryService
+from app.core.config import settings
 
 router = APIRouter(prefix="/query", tags=["query"])
 
-
 @router.post("/")
-def process_query(request: QueryRequest):
+def run_query(
+    message: str,
+    confirm: bool = False,
+    current_user: User = Depends(get_current_user),
+):
+    if not current_user.database_name:
+        raise HTTPException(400, "No database created")
 
-    engine = get_user_engine("interview_db")
+    url = make_url(settings.DATABASE_URL).set(database=current_user.database_name)
+    engine = create_engine(url)
 
-    full_schema = get_schema_for_model(engine)
+    schema_context = retrieve_schema(message, current_user.id)
 
-    build_schema_index(full_schema)
+    sql = generate_sql(schema_context, message)
 
-    relevant_schema = retrieve_relevant_schema(request.message)
-
-    generated_sql = generate_sql(relevant_schema, request.message)
+    service = QueryService(engine,current_user.id)
+    result = service.execute(
+        sql=sql,
+        confirm=confirm,
+        question=message,
+        schema=schema_context
+    )
 
     return {
-        "retrieved_schema": relevant_schema,
-        "generated_sql": generated_sql
+        "generated_sql": sql,
+        "result": result
     }

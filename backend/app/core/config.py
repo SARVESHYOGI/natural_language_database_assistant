@@ -1,9 +1,8 @@
 from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
-    REDIS_HOST: str = "localhost"
-    REDIS_PORT: int = 6379
-    MODEL_NAME: str = "mistralai/Mistral-7B-Instruct-v0.2"
+    DATABASE_URL: str
+    SECRET_KEY: str
 
     model_config = {
         "env_file": ".env",
