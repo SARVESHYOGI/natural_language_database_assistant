@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { LogOut, User, Database, Plus, Settings } from 'lucide-react'
+import { LogOut, User, Database, Plus, Settings, X } from 'lucide-react'
 import DatabaseSelector from '../components/DatabaseSelector'
 import ChatInterface from '../components/ChatInterface'
 import QueryResult from '../components/QueryResult'
@@ -11,12 +11,25 @@ export default function DashboardPage() {
     const navigate = useNavigate()
     const [user, setUser] = useState(null)
     const [selectedDatabase, setSelectedDatabase] = useState(null)
-
-    const [databases] = useState([
+    const [isAddDatabaseOpen, setIsAddDatabaseOpen] = useState(false)
+    const [databases, setDatabases] = useState([
         { id: 'ecom', name: 'E-Commerce Database', tables: ['users', 'products', 'orders'] },
         { id: 'school', name: 'School Database', tables: ['students', 'courses', 'enrollments'] },
         { id: 'crm', name: 'CRM Database', tables: ['contacts', 'companies', 'deals'] },
     ])
+    const [newDatabaseName, setNewDatabaseName] = useState('');
+    useEffect(() => {
+        const fetchDateBase = async () => {
+            try {
+                const res = await api.get('/db/databases')
+                console.log(res);
+                setDatabases(res.data)
+            } catch (err) {
+                console.log(err);
+            }
+        }
+        fetchDateBase();
+    }, [])
 
     const [messages, setMessages] = useState([
         {
@@ -35,11 +48,11 @@ export default function DashboardPage() {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-
                 const res = await api.get('/auth/me')
                 console.log(res);
                 setUser(res.data)
             } catch (err) {
+                console.log(err);
                 navigate('/login')
             }
         }
@@ -72,6 +85,21 @@ export default function DashboardPage() {
         )
     }
 
+    const addDB = async () => {
+        if (!newDatabaseName.trim()) return;
+
+        try {
+            const res = await api.post('/db/databases', { name: newDatabaseName });
+            const createdDb = res.data;
+            setDatabases((prev) => [...prev, createdDb]);
+            setNewDatabaseName('');
+            setIsAddDatabaseOpen(false);
+        } catch (err) {
+            console.error('Failed to add database', err);
+            alert('Error creating database. Please try again.');
+        }
+    }
+
     return (
         <div className="min-h-screen bg-gray-100 flex flex-col">
 
@@ -89,7 +117,9 @@ export default function DashboardPage() {
                 {/* Right */}
                 <div className="flex flex-wrap items-center gap-3">
 
-                    <button className="flex items-center gap-2 bg-gray-100 hover:bg-indigo-600 hover:text-white px-4 py-2 rounded-lg transition text-sm font-medium">
+                    <button
+                        onClick={() => setIsAddDatabaseOpen(true)}
+                        className="flex items-center gap-2 bg-gray-100 hover:bg-indigo-600 hover:text-white px-4 py-2 rounded-lg transition text-sm font-medium">
                         <Plus size={18} />
                         <span className="hidden sm:inline">Add Database</span>
                     </button>
@@ -112,6 +142,39 @@ export default function DashboardPage() {
 
                 </div>
             </header>
+
+            {isAddDatabaseOpen && (
+                <div
+                    className="fixed inset-0 flex items-center justify-center z-50
+               bg-black bg-opacity-30 backdrop-blur-sm"
+                >
+                    <div className="bg-white rounded-lg p-6 w-96 relative shadow-lg">
+                        <button
+                            onClick={() => setIsAddDatabaseOpen(false)}
+                            className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+                        >
+                            <X size={20} />
+                        </button>
+
+                        <h2 className="text-lg font-semibold mb-4">Add New Database</h2>
+
+                        <input
+                            type="text"
+                            placeholder="Database Name"
+                            className="w-full p-2 border rounded mb-4"
+                            value={newDatabaseName}
+                            onChange={(e) => setNewDatabaseName(e.target.value)}
+                        />
+
+                        <button
+                            className="w-full bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700"
+                            onClick={addDB}
+                        >
+                            Add Database
+                        </button>
+                    </div>
+                </div>
+            )}
 
             {/* CONTENT */}
             <div className="flex-1 grid lg:grid-cols-[260px_1fr] gap-4 p-4">

@@ -57,3 +57,4 @@ def login(
 def read_users_me(current_user: User = Depends(get_current_user)):
     print(f"Current user: {current_user.username}")
     return current_user
+

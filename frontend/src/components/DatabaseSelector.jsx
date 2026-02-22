@@ -14,7 +14,8 @@ function DatabaseSelector({ databases, selectedDatabase, onSelect }) {
             <div className="flex flex-col gap-2 flex-1">
 
                 {databases.map((db) => {
-                    const isActive = selectedDatabase?.id === db.id
+                    const isActive = selectedDatabase?.id === db.id;
+                    const tableCount = db.tables?.length || 0;
 
                     return (
                         <button
@@ -22,41 +23,23 @@ function DatabaseSelector({ databases, selectedDatabase, onSelect }) {
                             onClick={() => onSelect(db)}
                             aria-pressed={isActive}
                             className={`
-                group
-                flex items-center justify-between
-                p-3 rounded-lg text-left text-sm
-                transition-all duration-200
-                border-2
+                group flex items-center justify-between p-3 rounded-lg text-left text-sm
+                transition-all duration-200 border-2
                 ${isActive
                                     ? 'bg-blue-50 border-blue-500 text-blue-900'
-                                    : 'bg-gray-100 border-transparent hover:bg-gray-200 hover:translate-x-1'
-                                }
-              `}
+                                    : 'bg-gray-100 border-transparent hover:bg-gray-200 hover:translate-x-1'}
+            `}
                         >
                             <div className="flex-1 min-w-0">
-
-                                <div
-                                    className={`
-                    font-medium truncate mb-1
-                    ${isActive ? 'text-blue-900' : 'text-gray-800'}
-                  `}
-                                >
+                                <div className={`font-medium truncate mb-1 ${isActive ? 'text-blue-900' : 'text-gray-800'}`}>
                                     {db.name}
                                 </div>
-
-                                <div
-                                    className={`
-                    text-xs
-                    ${isActive ? 'text-blue-500' : 'text-gray-500'}
-                  `}
-                                >
-                                    {db.tables.length} table{db.tables.length !== 1 ? 's' : ''}
+                                <div className={`text-xs ${isActive ? 'text-blue-500' : 'text-gray-500'}`}>
+                                    {tableCount} table{tableCount !== 1 ? 's' : ''}
                                 </div>
                             </div>
 
-                            {isActive && (
-                                <Check size={16} className="text-blue-500 ml-2 flex-shrink-0" />
-                            )}
+                            {isActive && <Check size={16} className="text-blue-500 ml-2 flex-shrink-0" />}
                         </button>
                     )
                 })}

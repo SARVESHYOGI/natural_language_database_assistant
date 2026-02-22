@@ -66,3 +66,24 @@ def get_database(
 
     return db_record
 
+@router.post("/databases/{db_id}/activate")
+def activate_database(
+    db_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    db_record = (
+        db.query(UserDatabase)
+        .filter_by(id=db_id, owner_id=current_user.id)
+        .first()
+    )
+
+    if not db_record:
+        raise HTTPException(status_code=404, detail="Database not found")
+
+    current_user.active_db_id = db_id
+    db.commit()
+
+    return {"message": f"{db_record.name} activated successfully"}
+
+
