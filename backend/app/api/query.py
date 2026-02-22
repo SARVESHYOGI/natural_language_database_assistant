@@ -7,18 +7,19 @@ from app.services.rag_service import retrieve_schema
 from app.services.llm_service import generate_sql
 from app.services.query_service import QueryService
 from app.core.config import settings
+from app.models.schemas import QueryRequest
 
 router = APIRouter(prefix="/query", tags=["query"])
 
 @router.post("/")
 def run_query(
-    message: str,
-    confirm: bool = False,
+    request: QueryRequest,
     current_user: User = Depends(get_current_user),
 ):
     if not current_user.database_name:
         raise HTTPException(400, "No database created")
-
+    message = request.message
+    confirm = request.confirm
     url = make_url(settings.DATABASE_URL).set(database=current_user.database_name)
     engine = create_engine(url)
 

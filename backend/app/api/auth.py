@@ -22,7 +22,6 @@ def register(user: UserCreate, db: Session = Depends(get_db)):
         email=user.email,
         hash_password=hash_password(user.password)
     )
-
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -39,6 +38,15 @@ def login(data: LoginRequest, response: Response, db: Session = Depends(get_db))
     response.set_cookie("access_token", token, httponly=True)
 
     return {"message": "Login success", "access_token": token}
+
+@router.post("/logout")
+def logout(response: Response):
+    response.delete_cookie("access_token")
+    return {"message": "Logged out"}
+
+@router.get("/me", response_model=UserResponse)
+def get_current_user_info(current_user: User = Depends(get_current_user)):
+    return current_user
 
 @router.post("/create-db")
 def create_database(

@@ -17,6 +17,8 @@ def build_index(schema_text: str, user_id: int):
 
 def retrieve_schema(question: str, user_id: int):
     path = f"storage/vector_indexes/user_{user_id}"
+    if not os.path.exists(path):
+        return "No tables yet."
     store = FAISS.load_local(path, embedding, allow_dangerous_deserialization=True)
     docs = store.similarity_search(question, k=1)
     return docs[0].page_content

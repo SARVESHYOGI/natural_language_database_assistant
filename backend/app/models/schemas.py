@@ -1,3 +1,6 @@
+
+from typing import List
+
 from pydantic import BaseModel, EmailStr
 
 class UserCreate(BaseModel):
@@ -16,3 +19,16 @@ class UserResponse(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class DatabaseInfo(BaseModel):
+    name: str
+    tables_count: int
+    tables: List[str]
+
+
+class QueryRequest(BaseModel):
+    message: str
+    confirm: bool = False
+
+

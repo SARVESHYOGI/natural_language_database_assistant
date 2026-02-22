@@ -1,6 +1,7 @@
 import { Database, Check } from 'lucide-react'
 
 function DatabaseSelector({ databases, selectedDatabase, onSelect }) {
+    console.log(databases);
     return (
         <div className="h-full flex flex-col">
 
