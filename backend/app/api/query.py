@@ -23,8 +23,9 @@ def run_query(
     url = make_url(settings.DATABASE_URL).set(database=current_user.database_name)
     engine = create_engine(url)
 
-    schema_context = retrieve_schema(message, current_user.id)
-
+    schema_context, score = retrieve_schema(message, current_user.id)
+    SIMILARITY_THRESHOLD = 0.7
+    
     sql = generate_sql(schema_context, message)
 
     service = QueryService(engine,current_user.id)

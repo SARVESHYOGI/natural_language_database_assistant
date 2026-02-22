@@ -46,7 +46,6 @@ export default function DashboardPage() {
         fetchDatabases()
     }, [])
 
-    /* ---------------- HANDLE SEND MESSAGE ---------------- */
     const handleSendMessage = async (input) => {
         if (!selectedDatabase) return
 
@@ -100,14 +99,13 @@ export default function DashboardPage() {
         setIsLoading(false)
     }
 
-    /* ---------------- APPROVE MUTATION ---------------- */
     const handleApprove = async () => {
         try {
             const res = await api.post('/query', {
                 message: permissionRequest.originalMessage,
                 confirm: true,
             })
-
+            console.log(res);
             const assistantMsg = {
                 id: Date.now(),
                 role: 'assistant',
@@ -130,6 +128,12 @@ export default function DashboardPage() {
 
     const addDB = async () => {
         if (!newDatabaseName.trim()) return
+        if (databases.length >= 1) {
+            alert("You can only have one database in the dev version.")
+            alert("multi db feature coming")
+            return;
+        }
+
         try {
             const res = await api.post('/databases', { name: newDatabaseName })
             setDatabases((prev) => [...prev, res.data])

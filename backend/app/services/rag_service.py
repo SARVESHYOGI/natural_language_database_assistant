@@ -20,5 +20,8 @@ def retrieve_schema(question: str, user_id: int):
     if not os.path.exists(path):
         return "No tables yet."
     store = FAISS.load_local(path, embedding, allow_dangerous_deserialization=True)
-    docs = store.similarity_search(question, k=1)
-    return docs[0].page_content
+    docs = store.similarity_search_with_score(question, k=1)
+    if not docs:
+        return None, 0
+    doc, score = docs[0]
+    return doc.page_content, score
