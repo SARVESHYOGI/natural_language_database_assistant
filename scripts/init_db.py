@@ -1,6 +1,8 @@
 import sys
 import os
+from dotenv import load_dotenv
 
+load_dotenv() 
 # Add backend folder to path
 sys.path.append(os.path.join(os.path.dirname(__file__), "..", "backend"))
 

@@ -1,9 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, Response
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
 from app.models.schemas import UserCreate, UserResponse
 from app.models.user import User
 from app.core.security import hash_password, verify_password, create_access_token, get_current_user
 from app.db.engine import get_db
+
+class LoginRequest(BaseModel):
+    username: str
+    password: str
 
 router=APIRouter(prefix="/auth", tags=["auth"])
 
@@ -25,7 +30,7 @@ def register(user:UserCreate, db:Session=Depends(get_db)):
 
 @router.post("/token")
 def login(
-    form_data: UserCreate,
+    form_data: LoginRequest,
     response: Response,
     db: Session = Depends(get_db),
 ):
@@ -42,10 +47,10 @@ def login(
         httponly=True,
         secure=False,     
         samesite="lax",
-        max_age=60 * 60,
+        max_age=60 * 60*60,
     )
 
-    return {"message": "Login successful"}
+    return {"message": "Login successful", "access_token": access_token}
 
 
 @router.get("/me", response_model=UserResponse)

@@ -1,8 +1,11 @@
-from fastapi import FastAPI, logger
+from fastapi import FastAPI,logger
+import logging
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from app.api.auth import router as auth_router
-from app.api.chat import router as chat_router
+from app.api.database import router as database_router
 
+logger = logging.getLogger(__name__)
 app = FastAPI(title="NL DB Assistant")
 
 origins = [
@@ -11,20 +14,24 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=[
+        "*"
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 app.include_router(auth_router)
-app.include_router(chat_router)
-
+app.include_router(database_router)
 @app.middleware("http")
 async def global_error_handler(request, call_next):
     try:
         response = await call_next(request)
         return response
     except Exception as e:
-        logger.error(f"Unhandled error: {e}")
-        return {"error": "Internal Server Error"}
+        logger.exception("Unhandled error")
+        return JSONResponse(
+            status_code=500,
+            content={"error": "Internal Server Error"},
+        )

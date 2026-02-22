@@ -4,7 +4,6 @@ import { Database, Eye, EyeOff, Mail, Lock, User } from 'lucide-react'
 import api from '../api/axios'
 
 export default function LoginPage() {
-    const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [username, setUsername] = useState('')
     const [showPassword, setShowPassword] = useState(false)
@@ -17,20 +16,14 @@ export default function LoginPage() {
         setError('')
         setIsLoading(true)
 
-        if (!email || !password || !username) {
+        if (!password || !username) {
             setError('Please fill in all fields')
             setIsLoading(false)
             return
         }
 
-        if (!email.includes('@')) {
-            setError('Please enter a valid email address')
-            setIsLoading(false)
-            return
-        }
-
         try {
-            const res = await api.post('/auth/token', { username, email, password })
+            const res = await api.post('/auth/token', { username, password })
             console.log(res.data);
             navigate('/dashboard')
         } catch (error) {
@@ -83,22 +76,7 @@ export default function LoginPage() {
                             </div>
                         </div>
 
-                        {/* Email */}
-                        <div>
-                            <label className="block text-sm font-semibold text-gray-700 mb-2">
-                                Email Address
-                            </label>
-                            <div className="relative">
-                                <Mail className="absolute left-3 top-3.5 w-5 h-5 text-gray-400" />
-                                <input
-                                    type="email"
-                                    placeholder="you@example.com"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-400"
-                                />
-                            </div>
-                        </div>
+
 
                         {/* Password */}
                         <div>

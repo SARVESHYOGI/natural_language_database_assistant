@@ -1,5 +1,5 @@
 import os
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, make_url
 from sqlalchemy.orm import declarative_base, sessionmaker
 from dotenv import load_dotenv
 
@@ -32,14 +32,9 @@ def get_db():
 
 
 def get_user_engine(db_name: str):
-    """
-    Create engine for a specific user database.
-    """
-    base_url = MASTER_DATABASE_URL.rsplit("/", 1)[0]
-    user_db_url = f"{base_url}/{db_name}"
+    url = make_url(MASTER_DATABASE_URL)
+    new_url = url.set(database=db_name)
+    return create_engine(new_url, echo=True, future=True)
 
-    return create_engine(
-        user_db_url,
-        echo=True,
-        future=True
-    )
+def get_master_engine():
+    return master_engine
