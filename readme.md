@@ -136,6 +136,15 @@ Return structured result
 
 ---
 
+# 📸 ScreenShots
+
+![Total Tables](./docs/screenshots/numberoftables.png)
+![Teacher table](./docs/screenshots/teachertable.png)
+![Car Data](./docs/screenshots/carData.png)
+![Car Result](./docs/screenshots/carResult.png)
+
+---
+
 # 🚀 Future Improvements
 
 * Multi-database per user (production mode)
