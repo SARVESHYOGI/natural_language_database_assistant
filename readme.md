@@ -1,6 +1,3 @@
-Here’s a clean, short, professional README for your project 👇
-
----
 
 # 🧠 Natural Language Database Assistant
 
