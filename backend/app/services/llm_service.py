@@ -1,7 +1,18 @@
 import ollama
+import os
 import re
+from google import genai
+from google.genai import types
+from dotenv import load_dotenv
 
-MODEL_NAME = "phi3" 
+load_dotenv()
+
+
+api_key = os.getenv("GENAI_API_KEY")
+if not api_key:
+    raise ValueError("GENAI_API_KEY not found in environment variables.")
+client = genai.Client(api_key=api_key)
+
 
 def clean_sql_output(text: str):
 
@@ -36,19 +47,29 @@ User request:
 SQL:
 """
 
-    response = ollama.chat(
-        model="phi3",
-        messages=[
-            {"role": "system", "content": "Return only raw SQL."},
-            {"role": "user", "content": prompt}
-        ],
-        options={
-            "temperature": 0.1
-        }
+    # response = ollama.chat(
+    #     model="phi3",
+    #     messages=[
+    #         {"role": "system", "content": "Return only raw SQL."},
+    #         {"role": "user", "content": prompt}
+    #     ],
+    #     options={
+    #         "temperature": 0.1
+    #     }
+    # )
+    # raw_sql = response["message"]["content"]
+
+    response = client.models.generate_content(
+        model="gemini-3-flash-preview",
+        contents=prompt,  # ✅ list of Content
+        config=types.GenerateContentConfig(
+            system_instruction="Return only raw SQL.",
+            temperature=0.1
+        )
     )
-
-    raw_sql = response["message"]["content"]
-
+    raw_sql = response.text
+    
+    
     return clean_sql_output(raw_sql)
 
 
